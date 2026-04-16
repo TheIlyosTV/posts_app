@@ -1,0 +1,5 @@
+<%= turbo_stream.append "messages" do %>
+  <%= render "direct_messages/direct_message", direct_message: @message %>
+<% end %>
+
+<%= turbo_stream.remove "no_messages" if exists? %>

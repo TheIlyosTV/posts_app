@@ -1,0 +1,62 @@
+<div class="max-w-2xl mx-auto">
+  <div class="bg-white rounded-xl shadow-sm p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-blue-600">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Yangi Post Yaratish
+    </h1>
+
+    <%= form_with model: @post, local: true, html: { enctype: "multipart/form-data" } do |f| %>
+      <% if @post.errors.any? %>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+          <ul class="list-disc list-inside">
+            <% @post.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="mb-6">
+        <%= f.label :title, "Sarlavha", class: "block text-gray-700 font-semibold mb-2" %>
+        <%= f.text_field :title, class: "w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition", placeholder: "Post sarlavhasi", required: true %>
+      </div>
+
+      <div class="mb-6">
+        <%= f.label :content, "Mazmun", class: "block text-gray-700 font-semibold mb-2" %>
+        <%= f.text_area :content, rows: 8, class: "w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition", placeholder: "Postingiz mazmunini yozing...", required: true %>
+      </div>
+
+      <div class="mb-6">
+        <%= f.label :image, "Rasm", class: "block text-gray-700 font-semibold mb-2" %>
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition cursor-pointer" onclick="document.getElementById('post_image').click()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400 mb-3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+          <p class="text-gray-500">Rasm tanlash uchun bosing yoki bu yerni bosing</p>
+          <p class="text-sm text-gray-400 mt-1">PNG, JPG, GIF fayllari qabul qilinadi</p>
+          <%= f.file_field :image, accept: "image/*", class: "hidden", id: "post_image", onchange: "updateFileName(this)" %>
+        </div>
+        <p id="file_name" class="mt-2 text-sm text-gray-500"></p>
+      </div>
+
+      <div class="flex gap-4">
+        <%= f.submit "Yaratish", class: "bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 cursor-pointer transition flex items-center gap-2" %>
+        <%= link_to posts_path, class: "bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition flex items-center gap-2" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Bekor qilish
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  function updateFileName(input) {
+    const fileName = input.files[0]?.name || '';
+    document.getElementById('file_name').textContent = fileName ? 'Tanlangan fayl: ' + fileName : '';
+  }
+</script>

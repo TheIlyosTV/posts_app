@@ -1,0 +1,158 @@
+<div class="max-w-4xl mx-auto">
+  <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+    <% if @post.image.attached? %>
+      <%= image_tag @post.image, class: "w-full max-h-96 object-cover" %>
+    <% end %>
+    
+    <div class="p-6">
+      <div class="flex justify-between items-start mb-4">
+        <div class="flex items-center gap-3">
+          <%= link_to profile_path(id: @post.user.id), class: "hover:opacity-80" do %>
+            <%= avatar(@post.user, size: 50) %>
+          <% end %>
+          <div>
+            <%= link_to profile_path(id: @post.user.id), class: "font-semibold text-gray-800 hover:text-blue-600 transition" do %>
+              <%= @post.user.username || @post.user.email %>
+            <% end %>
+            <p class="text-sm text-gray-500"><%= l(@post.created_at, format: :long) %></p>
+          </div>
+        </div>
+        
+        <%= link_to posts_path, class: "p-2 hover:bg-gray-100 rounded-lg transition" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-500">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        <% end %>
+      </div>
+      
+      <h1 class="text-3xl font-bold text-gray-800 mb-4"><%= @post.title %></h1>
+      
+      <div class="prose max-w-none text-gray-700">
+        <%= simple_format(@post.content) %>
+      </div>
+
+      <% if user_signed_in? && @post.user == current_user %>
+        <div class="border-t mt-6 pt-4">
+          <%= button_to post_path(@post), method: :delete, 
+              data: { confirm: "Postni o'chirishni tasdiqlaysizmi?" },
+              class: "flex items-center gap-2 text-red-600 hover:text-red-800 hover:bg-red-50 px-4 py-2 rounded-lg transition" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+            </svg>
+            Postni o'chirish
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+    <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+      </svg>
+      Izohlar (<%= @comments.count %>)
+    </h2>
+    
+    <% if user_signed_in? %>
+      <%= form_with model: [@post, @post.comments.build], local: true, class: "mb-6" do |f| %>
+        <div class="flex gap-3">
+          <%= avatar(current_user, size: 40) %>
+          <div class="flex-1">
+            <%= f.text_area :content, rows: 2, class: "w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition", placeholder: "Izoh qoldirish..." %>
+            <div class="mt-2">
+              <%= f.submit "Yuborish", class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="bg-gray-50 rounded-lg p-4 mb-6 text-center">
+        <p class="text-gray-600">Izoh qoldirish uchun 
+          <%= link_to "ro'yxatdan o'ting", new_user_registration_path, class: "text-blue-600 hover:underline font-medium" %>
+          yoki 
+          <%= link_to "kirish", new_user_session_path, class: "text-blue-600 hover:underline font-medium" %>
+          qiling.
+        </p>
+      </div>
+    <% end %>
+
+    <div class="space-y-4">
+      <% @comments.each do |comment| %>
+        <% next unless comment.persisted? %>
+        <div class="flex gap-3 py-4 border-t border-gray-100">
+          <%= link_to profile_path(id: comment.user.id), class: "flex-shrink-0" do %>
+            <%= avatar(comment.user, size: 40) %>
+          <% end %>
+          <div class="flex-1">
+            <div class="flex justify-between items-start">
+              <div>
+                <%= link_to profile_path(id: comment.user.id), class: "font-semibold text-gray-800 hover:text-blue-600 transition" do %>
+                  <%= comment.user.username || comment.user.email %>
+                <% end %>
+                <span class="text-sm text-gray-500 ml-2"><%= time_ago_in_words(comment.created_at) %> oldin</span>
+              </div>
+              <% if user_signed_in? && comment.user == current_user %>
+                <%= button_to post_comment_path(@post, comment), method: :delete, 
+                    data: { confirm: "Izohni o'chirishni tasdiqlaysizmi?" },
+                    class: "text-gray-400 hover:text-red-600 p-1" do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                <% end %>
+              <% end %>
+            </div>
+            <p class="text-gray-600 mt-1"><%= comment.content %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm p-6">
+    <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.355 0-2.697-.056-4.024-.166-1.133-.093-1.98-1.057-1.98-2.207v-4.286c0-.97.616-1.813 1.5-2.097V4.5a2.25 2.25 0 012.25-2.25h10.5a2.25 2.25 0 012.25 2.25v.5a2.25 2.25 0 01-2.25 2.25H6.75a2.25 2.25 0 01-2.25-2.25V8.5a2.25 2.25 0 012.25-2.25h7.5z" />
+      </svg>
+      Post Chat
+    </h2>
+    
+    <% if @post.chat_room %>
+      <div id="post_messages" class="h-64 overflow-y-auto border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50 space-y-3">
+        <% @post.chat_room.messages.includes(:user).each do |message| %>
+          <div class="flex <%= message.user_id == (current_user&.id) ? 'justify-end' : 'justify-start' %>">
+            <div class="max-w-xs <%= message.user_id == (current_user&.id) ? 'bg-blue-600 text-white' : 'bg-white text-gray-800' %> rounded-xl px-4 py-2 shadow-sm">
+              <p class="text-sm"><%= message.content %></p>
+              <span class="text-xs <%= message.user_id == (current_user&.id) ? 'text-blue-100' : 'text-gray-400' %> block mt-1">
+                <%= l(message.created_at, format: :short) %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <% if user_signed_in? %>
+        <%= form_with url: post_chat_room_messages_path(@post, @post.chat_room), 
+            local: true, 
+            id: "new_message_form",
+            html: { class: "flex gap-3" } do |f| %>
+          <%= f.text_field :content, class: "flex-1 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-transparent transition", placeholder: "Chatda xabar yozing...", name: "message[content]", autocomplete: "off" %>
+          <%= f.submit "Yuborish", class: "bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition cursor-pointer font-medium" %>
+        <% end %>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">Chatda qatnashish uchun <%= link_to "kirish", new_user_session_path, class: "text-blue-600 hover:underline font-medium" %> qiling.</p>
+      <% end %>
+    <% else %>
+      <p class="text-gray-500 text-center py-4">Chat hali mavjud emas.</p>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('turbo:load', function() {
+    const messagesContainer = document.getElementById('post_messages');
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  });
+</script>
