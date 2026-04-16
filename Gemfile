@@ -19,6 +19,10 @@ group :development, :test do
   gem "bundler-audit", require: false
   gem "brakeman", require: false
   gem "rubocop-rails-omakase", require: false
+end
+
+group :development do
+  gem "web-console"
   gem "sqlite3", ">= 2.1"
 end
 
