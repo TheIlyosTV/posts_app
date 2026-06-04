@@ -8,7 +8,7 @@ gem "turbo-rails"
 gem "stimulus-rails"
 gem "tailwindcss-rails"
 gem "devise"
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.0"
 gem "pg"
 gem "bootsnap", require: false
 gem "kamal", require: false
